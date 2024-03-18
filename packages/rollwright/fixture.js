@@ -4,7 +4,7 @@ import { test as base } from "@playwright/test";
 
 import { rollup } from "rollup";
 import { ephemeral } from "./ephemeral.js";
-import nodeResolve from "@rollup/plugin-node-resolve";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
 
 import { Hono } from "hono/tiny";
 import { getMimeType } from "hono/utils/mime";
@@ -26,6 +26,11 @@ export let test = base.extend({
 
 			let cache;
 			let id = -1;
+			let extra = [];
+
+			function configurate(plugins) {
+				extra.push(...plugins);
+			}
 
 			async function evaluate(fn, ...args) {
 				let code = `window.run${++id} = ${fn.toString()};`;
@@ -35,6 +40,7 @@ export let test = base.extend({
 					cache,
 					input,
 					plugins: [
+						...extra,
 						nodeResolve({
 							browser: true,
 							rootDir: dirname(filename),
@@ -42,13 +48,14 @@ export let test = base.extend({
 						}),
 						ephemeral(filename, code),
 					],
+					logLevel: "silent",
 				});
 				cache = bundle.cache;
 
 				let { output } = await bundle.generate({
 					format: "esm",
 					manualChunks(id) {
-						if (id.startsWith("/")) return relative(process.cwd(), id);
+						if (id.startsWith("/")) return relative(process.cwd(), id).replace(/\.\.\//g, "_");
 					},
 				});
 
@@ -79,6 +86,7 @@ export let test = base.extend({
 				return await page.evaluateHandle(([id, args]) => window[`run${id}`](...args), [id, args]);
 			}
 
+			Object.assign(evaluate, { configurate });
 			await use(evaluate);
 
 			connect?.close();
