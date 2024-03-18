@@ -10,6 +10,9 @@
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-inject": "^5.0.5",
     "@rollup/plugin-swc": "^0.3.0",
+    "@types/node": "^20.11.28",
+    "@types/react": "^18.2.67",
+    "@types/react-dom": "^18.2.22",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rollwright": "^0.0.0"
