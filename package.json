@@ -3,12 +3,12 @@
   "type": "module",
   "workspaces": [
     "packages/*",
-    "examples/*"
+    "examples/*",
+    "docs"
   ],
   "dependencies": {
     "prettier": "^3.2.5",
-    "typescript": "^5.4.2",
-    "vitepress": "^1.0.0-rc.45"
+    "typescript": "^5.4.2"
   },
   "prettier": {
     "printWidth": 100,

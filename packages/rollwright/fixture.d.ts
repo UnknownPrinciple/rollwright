@@ -8,17 +8,17 @@ export type ConnectFn<Output, Result = Output> = <Args extends unknown[]>(
 	...args: Args
 ) => Promise<Result>;
 
-export let test: ReturnType<
-	typeof base.extend<{
-		setup: (options: {
-			plugins?: Plugin[];
-			template?: string;
-			staticRoot?: string;
-			extensions?: string[];
-		}) => Promise<void>;
-		rollup: <Result, Args extends unknown[]>(
-			fn: (...args: { [k in keyof Args]: Unbox<Args[k]> }) => Result,
-			...args: Args
-		) => Promise<JSHandle<Awaited<Result>>>;
-	}>
->;
+export type RollwrightFixtures = {
+	setup: (options: {
+		plugins?: Plugin[];
+		template?: string;
+		staticRoot?: string;
+		extensions?: string[];
+	}) => Promise<void>;
+	rollup: <Result, Args extends unknown[], Output = JSHandle<Awaited<Result>>>(
+		fn: (...args: { [k in keyof Args]: Unbox<Args[k]> }) => Result,
+		...args: Args
+	) => Promise<Output>;
+};
+
+export let test: ReturnType<typeof base.extend<RollwrightFixtures>>;

@@ -11,6 +11,6 @@ charset = utf-8
 indent_style = tab
 indent_size = 2
 
-[*.{json,yaml}]
+[*.{json,yaml,md}]
 indent_style = space
 indent_size = 2
