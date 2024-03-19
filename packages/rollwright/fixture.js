@@ -84,15 +84,15 @@ export let test = base.extend({
 
 				let entry = output.find((asset) => asset.type === "chunk" && asset.isEntry);
 
-				await page.evaluate((src) => {
-					return new Promise((onload) => {
+				let params = [entry.fileName, hash, args];
+				return await page.evaluateHandle(([src, hash, args]) => {
+					return new Promise((resolve, reject) => {
+						let onload = () => resolve(window[hash](...args));
+						let onerror = () => reject();
 						let script = document.createElement("script");
-						Object.assign(script, { type: "module", src, onload });
-						document.head.append(script);
+						document.head.append(Object.assign(script, { type: "module", src, onload, onerror }));
 					});
-				}, entry.fileName);
-
-				return await page.evaluateHandle(([hash, args]) => window[hash](...args), [hash, args]);
+				}, params);
 			}
 
 			await use(evaluate);
