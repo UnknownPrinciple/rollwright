@@ -12,8 +12,18 @@ import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 
 export let test = base.extend({
+	setup: [
+		async ({}, use) => {
+			async function setup(options) {
+				setup.plugins = options?.plugins;
+			}
+
+			await use(setup);
+		},
+		{ scope: "worker" },
+	],
 	rollup: [
-		async ({ page }, use, testInfo) => {
+		async ({ page, setup }, use, testInfo) => {
 			let server = new Hono();
 			let connect = null;
 			server.get("/", (ctx) => ctx.html(`<html><head></head><body></body></html>`));
@@ -26,11 +36,7 @@ export let test = base.extend({
 
 			let cache;
 			let id = -1;
-			let extra = [];
-
-			function configurate(plugins) {
-				extra.push(...plugins);
-			}
+			let extra = setup.plugins ?? [];
 
 			async function evaluate(fn, ...args) {
 				let code = `window.run${++id} = ${fn.toString()};`;
@@ -50,7 +56,6 @@ export let test = base.extend({
 					],
 					logLevel: "silent",
 				});
-				cache = bundle.cache;
 
 				let { output } = await bundle.generate({
 					format: "esm",
@@ -58,6 +63,7 @@ export let test = base.extend({
 						if (id.startsWith("/")) return relative(process.cwd(), id).replace(/\.\.\//g, "_");
 					},
 				});
+				cache = bundle.cache;
 
 				for (let asset of output) {
 					let source = asset.type === "chunk" ? asset.code : asset.source;
@@ -86,7 +92,6 @@ export let test = base.extend({
 				return await page.evaluateHandle(([id, args]) => window[`run${id}`](...args), [id, args]);
 			}
 
-			Object.assign(evaluate, { configurate });
 			await use(evaluate);
 
 			connect?.close();

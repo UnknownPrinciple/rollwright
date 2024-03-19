@@ -1,4 +1,4 @@
-import { test as base } from "rollwright";
+import { test as base, ConnectFn } from "rollwright";
 
 import commonjs from "@rollup/plugin-commonjs";
 import swc from "@rollup/plugin-swc";
@@ -10,7 +10,9 @@ import { type Root } from "react-dom/client";
 
 process.env.NODE_ENV = "development";
 
-export let test = base.extend<{ mount: (render: () => ReactNode) => Promise<Locator> }>({
+export let test = base.extend<{
+	mount: ConnectFn<ReactNode | Promise<ReactNode>, Locator>;
+}>({
 	mount: [
 		async ({ rollup, page }, use) => {
 			let root: JSHandle<Root | null> = null as any;
@@ -37,22 +39,24 @@ export let test = base.extend<{ mount: (render: () => ReactNode) => Promise<Loca
 	],
 });
 
-test.beforeEach(({ rollup }) => {
-	rollup.configurate([
-		commonjs(),
-		swc({
-			swc: {
-				jsc: {
-					target: "es2022",
-					parser: { syntax: "ecmascript", jsx: true, decorators: true },
-					transform: {
-						react: { runtime: "automatic" },
-						optimizer: { globals: { envs: ["NODE_ENV"] } },
+test.beforeAll(async ({ setup }) => {
+	await setup({
+		plugins: [
+			commonjs(),
+			swc({
+				swc: {
+					jsc: {
+						target: "es2022",
+						parser: { syntax: "ecmascript", jsx: true, decorators: true },
+						transform: {
+							react: { runtime: "automatic" },
+							optimizer: { globals: { envs: ["NODE_ENV"] } },
+						},
 					},
+					sourceMaps: true,
 				},
-				sourceMaps: true,
-			},
-		}),
-		inject({ _jsx: ["react/jsx-runtime", "jsx"] }),
-	]);
+			}),
+			inject({ _jsx: ["react/jsx-runtime", "jsx"] }),
+		],
+	});
 });

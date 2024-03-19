@@ -2,7 +2,7 @@ import { expect } from "@playwright/test";
 import { test } from "rollwright";
 
 test("simple element rendering", async ({ rollup }) => {
-	let element = await rollup(async () => {
+	let element = await rollup(() => {
 		let element = document.createElement("div");
 		element.innerText = "hello";
 		document.body.append(element);
@@ -10,6 +10,12 @@ test("simple element rendering", async ({ rollup }) => {
 	});
 
 	await expect(element.asElement().innerText()).resolves.toContain("hello");
+
+	await rollup((element) => {
+		element.classList.add("active");
+	}, element);
+
+	await expect(element.asElement().getAttribute("class")).resolves.toContain("active");
 });
 
 test("imported behavior invoked", async ({ page, rollup }) => {
