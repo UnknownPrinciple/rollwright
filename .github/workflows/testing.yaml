@@ -19,3 +19,4 @@ jobs:
       - run: npm run test -w examples-vanilla
       - run: npm run test -w examples-react
       - run: npm run test -w examples-vue
+      - run: npm run test -w examples-angular

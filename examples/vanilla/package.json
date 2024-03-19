@@ -7,6 +7,6 @@
   },
   "dependencies": {
     "@playwright/test": "^1.42.1",
-    "rollwright": "^0.0.0"
+    "rollwright": "file:../../packages/rollwright"
   }
 }

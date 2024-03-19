@@ -1,13 +1,10 @@
 {
   "name": "rollwright",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "main": "./fixture.js",
   "module": "./fixture.js",
   "types": "./fixture.d.ts",
-  "files": [
-    "fixture.*"
-  ],
   "peerDependencies": {
     "@playwright/test": "^1.42.1",
     "rollup": "^4.13.0"

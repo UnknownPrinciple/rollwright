@@ -3,6 +3,8 @@
     "target": "es2022",
     "module": "node16",
     "moduleResolution": "bundler",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "jsx": "react-jsx",
     "strict": true
   }
