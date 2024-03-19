@@ -39,8 +39,9 @@ export let test = base.extend({
 			let extra = setup.plugins ?? [];
 
 			async function evaluate(fn, ...args) {
-				let code = `window.run${++id} = ${fn.toString()};`;
-				let filename = resolve(dirname(testInfo.file), id + basename(testInfo.file));
+				let hash = `step_${++id}`;
+				let code = `window.${hash} = ${fn.toString()};`;
+				let filename = resolve(dirname(testInfo.file), hash + basename(testInfo.file));
 				let input = basename(filename);
 				let bundle = await rollup({
 					cache,
@@ -89,7 +90,7 @@ export let test = base.extend({
 					});
 				}, entry.fileName);
 
-				return await page.evaluateHandle(([id, args]) => window[`run${id}`](...args), [id, args]);
+				return await page.evaluateHandle(([hash, args]) => window[hash](...args), [hash, args]);
 			}
 
 			await use(evaluate);
