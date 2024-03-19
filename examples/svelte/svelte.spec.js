@@ -12,8 +12,8 @@ test("basic svelte", async ({ page, rollup }) => {
 		let main = document.createElement("main");
 		document.body.append(main);
 		let { default: Component } = await import("./App.svelte");
-		new Component({ target: main });
+		new Component({ target: main, props: { name: "Svelte" } });
 	});
 
-	await expect(page.locator("main")).toContainText("Hello world!");
+	await expect(page.locator("main")).toContainText("Hello Svelte!");
 });

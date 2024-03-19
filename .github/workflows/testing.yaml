@@ -16,8 +16,4 @@ jobs:
       - run: npm install
       - run: npx playwright install-deps
       - run: npx playwright install
-      - run: npm run test -w examples-vanilla
-      - run: npm run test -w examples-react
-      - run: npm run test -w examples-vue
-      - run: npm run test -w examples-angular
-      - run: npm run test -w examples-svelte
+      - run: npm run test --ws --if-present

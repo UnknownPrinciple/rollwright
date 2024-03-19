@@ -1,0 +1,14 @@
+{
+  "name": "rollup-plugin-worker-url",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./plugin.js",
+  "module": "./plugin.js",
+  "types": "./plugin.d.ts",
+  "peerDependencies": {
+    "rollup": "^4.13.0"
+  },
+  "dependencies": {
+    "magic-string": "^0.30.8"
+  }
+}

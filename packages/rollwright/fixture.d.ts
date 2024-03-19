@@ -14,6 +14,7 @@ export let test: ReturnType<
 			plugins?: Plugin[];
 			template?: string;
 			staticRoot?: string;
+			extensions?: string[];
 		}) => Promise<void>;
 		rollup: <Result, Args extends unknown[]>(
 			fn: (...args: { [k in keyof Args]: Unbox<Args[k]> }) => Result,
