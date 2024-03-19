@@ -10,7 +10,11 @@ export type ConnectFn<Output, Result = Output> = <Args extends unknown[]>(
 
 export let test: ReturnType<
 	typeof base.extend<{
-		setup: (options: { plugins?: Plugin[] }) => Promise<void>;
+		setup: (options: {
+			plugins?: Plugin[];
+			template?: string;
+			staticRoot?: string;
+		}) => Promise<void>;
 		rollup: <Result, Args extends unknown[]>(
 			fn: (...args: { [k in keyof Args]: Unbox<Args[k]> }) => Result,
 			...args: Args

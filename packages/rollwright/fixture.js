@@ -15,7 +15,7 @@ export let test = base.extend({
 	setup: [
 		async ({}, use) => {
 			async function setup(options) {
-				setup.plugins = options?.plugins;
+				Object.assign(setup, options);
 			}
 
 			await use(setup);
@@ -26,9 +26,11 @@ export let test = base.extend({
 		async ({ page, setup }, use, testInfo) => {
 			let server = new Hono();
 			let connect = null;
-			server.get("/", (ctx) => ctx.html(`<html><head></head><body></body></html>`));
+			let template = setup.template ?? `<!doctype html><html><head></head><body></body></html>`;
+			server.get("/", (ctx) => ctx.html(template));
 
-			let statics = serveStatic({ root: relative(process.cwd(), dirname(testInfo.file)) });
+			let staticRoot = setup.staticRoot ?? relative(process.cwd(), dirname(testInfo.file));
+			let statics = serveStatic({ root: staticRoot });
 			server.notFound(async (ctx) => {
 				let response = await statics(ctx, () => Promise.resolve(null));
 				return response != null ? response : ctx.body(null, 404);

@@ -1,0 +1,12 @@
+{
+  "name": "examples-vue",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.42.1",
+    "rollwright": "^0.0.0"
+  }
+}
