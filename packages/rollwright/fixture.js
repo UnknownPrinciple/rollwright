@@ -8,8 +8,12 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 
 import { Hono } from "hono/tiny";
 import { getMimeType } from "hono/utils/mime";
+import { streamSSE } from "hono/streaming";
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
+
+import { createFilter } from "@rollup/pluginutils";
+import { createInstrumenter } from "istanbul-lib-instrument";
 
 export let test = base.extend({
 	setup: [setup, { scope: "worker" }],
@@ -24,7 +28,12 @@ async function setup({}, use) {
 	await use(setup);
 }
 
-async function execute({ page, setup }, use, testInfo) {
+async function execute({ page, setup, context }, use, testInfo) {
+	let reporterName = "rollwright/coverage-reporter";
+	let shouldInstrument = testInfo.config.reporter.some(
+		(v) => v != null && (v.includes(reporterName) || v[0].includes(reporterName)),
+	);
+
 	let server = new Hono();
 	let connect = null;
 	let template = setup.template ?? `<!doctype html><html><head></head><body></body></html>`;
@@ -52,6 +61,9 @@ async function execute({ page, setup }, use, testInfo) {
 			input,
 			plugins: [
 				...extra,
+				shouldInstrument
+					? coverage({ exclude: [new RegExp(input.replace(/\./, "\\.")), /node_modules/] })
+					: [],
 				nodeResolve({ browser: true, rootDir: dirname(filename), extensions }),
 				ephemeral(filename, code),
 			],
@@ -65,6 +77,7 @@ async function execute({ page, setup }, use, testInfo) {
 			},
 		});
 		cache = bundle.cache;
+		await bundle.close();
 
 		for (let asset of output) {
 			let source = asset.type === "chunk" ? asset.code : asset.source;
@@ -93,7 +106,76 @@ async function execute({ page, setup }, use, testInfo) {
 		}, params);
 	}
 
+	let cov = shouldInstrument ? coverageCollector(server, page) : null;
 	await use(evaluate);
-
+	if (cov != null) testInfo.attach("tester_coverage_report", { body: await cov.collect() });
 	connect?.close();
+}
+
+/**
+ * @typedef Options
+ * @property {import("@rollup/pluginutils").FilterPatter} [include]
+ * @property {import("@rollup/pluginutils").FilterPatter} [exclude]
+ * @param {Options} options
+ * @returns {import("rollup").Plugin}
+ */
+function coverage(options) {
+	let filter = createFilter(options?.include, options?.exclude);
+	return {
+		name: "coverage",
+		transform(code, id) {
+			if (!filter(id)) return;
+			let instrumenter = createInstrumenter();
+			let sourceMaps = this.getCombinedSourcemap();
+			// leading empty line to fix off by one issue in reports
+			let instrumentedCode = instrumenter.instrumentSync("\n" + code, id, sourceMaps);
+			instrumentedCode =
+				`(async function report() {
+					await fetch('/__register__', { method: "POST" });
+					let source = new EventSource('/__events__');
+					source.addEventListener('coverage', () => {
+						fetch('/__coverage__', { method: 'POST', body: JSON.stringify(self.__coverage__) })
+					});
+				})();` + instrumentedCode;
+			return { code: instrumentedCode, map: instrumenter.lastSourceMap() };
+		},
+	};
+}
+
+function coverageCollector(server, page) {
+	let counter = 0;
+	let coverageData = {};
+	let { promise: finish, resolve: ping } = deferred();
+	server.post("/__register__", async (ctx) => {
+		counter++;
+		return ctx.body(null, 200);
+	});
+	server.get("/__events__", (ctx) => {
+		return streamSSE(ctx, async (stream) => {
+			await finish;
+			await stream.writeSSE({ event: "coverage", data: "" });
+		});
+	});
+	server.post("/__coverage__", async (ctx) => {
+		counter--;
+		Object.assign(coverageData, await ctx.req.json());
+		return ctx.body(null, 200);
+	});
+
+	return {
+		async collect() {
+			ping();
+			while (counter > 0) await page.waitForTimeout(5);
+			return JSON.stringify(coverageData);
+		},
+	};
+}
+
+function deferred() {
+	let resolve, reject;
+	let promise = new Promise((rs, rj) => {
+		resolve = rs;
+		reject = rj;
+	});
+	return { promise, resolve, reject };
 }

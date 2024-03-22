@@ -4,6 +4,10 @@
   "type": "module",
   "main": "./fixture.js",
   "module": "./fixture.js",
+  "exports": {
+    ".": "./fixture.js",
+    "./coverage-reporter": "./coverage-reporter.js"
+  },
   "types": "./fixture.d.ts",
   "peerDependencies": {
     "@playwright/test": "^1.42.1",
@@ -12,6 +16,11 @@
   "dependencies": {
     "@hono/node-server": "^1.8.2",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "hono": "^4.1.1"
+    "@rollup/pluginutils": "^5.1.0",
+    "hono": "^4.1.1",
+    "istanbul-lib-coverage": "^3.2.2",
+    "istanbul-lib-instrument": "^6.0.2",
+    "istanbul-lib-report": "^3.0.1",
+    "istanbul-reports": "^3.1.7"
   }
 }
