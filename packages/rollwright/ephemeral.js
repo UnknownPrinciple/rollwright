@@ -1,4 +1,4 @@
-import { basename, isAbsolute } from "node:path";
+import { basename } from "node:path";
 
 /**
  * @param {string} filename
@@ -6,8 +6,6 @@ import { basename, isAbsolute } from "node:path";
  * @returns {import("rollup").Plugin}
  */
 export function ephemeral(filename, code) {
-	if (!isAbsolute) throw new Error("filename needs to be absolute path");
-
 	let name = basename(filename);
 	return {
 		name: "ephemeral_" + name,

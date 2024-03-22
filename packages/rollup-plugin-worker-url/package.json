@@ -5,6 +5,9 @@
   "main": "./plugin.js",
   "module": "./plugin.js",
   "types": "./plugin.d.ts",
+  "scripts": {
+    "test": "node --test --experimental-test-coverage"
+  },
   "peerDependencies": {
     "rollup": "^4.13.0"
   },
