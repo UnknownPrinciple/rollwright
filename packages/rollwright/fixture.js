@@ -1,4 +1,4 @@
-import { resolve, relative, dirname, basename } from "node:path";
+import { resolve, relative, dirname, basename, extname } from "node:path";
 
 import { test as base } from "@playwright/test";
 
@@ -12,8 +12,11 @@ import { streamSSE } from "hono/streaming";
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 
-import { createFilter } from "@rollup/pluginutils";
-import { createInstrumenter } from "istanbul-lib-instrument";
+import { createFilter, makeLegalIdentifier } from "@rollup/pluginutils";
+
+import libInstrument from "istanbul-lib-instrument";
+import libCoverage from "istanbul-lib-coverage";
+import libSourceMaps from "istanbul-lib-source-maps";
 
 export let test = base.extend({
 	setup: [setup, { scope: "worker" }],
@@ -28,7 +31,7 @@ async function setup({}, use) {
 	await use(setup);
 }
 
-async function execute({ page, setup, context }, use, testInfo) {
+async function execute({ page, setup }, use, testInfo) {
 	let reporterName = "rollwright/coverage-reporter";
 	let shouldInstrument = testInfo.config.reporter.some(
 		(v) => v != null && (v.includes(reporterName) || v[0].includes(reporterName)),
@@ -73,7 +76,11 @@ async function execute({ page, setup, context }, use, testInfo) {
 		let { output } = await bundle.generate({
 			format: "esm",
 			manualChunks(id) {
-				if (id.startsWith("/")) return relative(process.cwd(), id).replace(/\.\.\//g, "_");
+				if (id.startsWith("/")) {
+					let path = relative(process.cwd(), id);
+					let ext = extname(path);
+					return makeLegalIdentifier(path.slice(0, -ext.length)) + ext;
+				}
 			},
 		});
 		cache = bundle.cache;
@@ -125,26 +132,30 @@ function coverage(options) {
 		name: "coverage",
 		transform(code, id) {
 			if (!filter(id)) return;
-			let instrumenter = createInstrumenter();
+			let instrumenter = libInstrument.createInstrumenter();
 			let sourceMaps = this.getCombinedSourcemap();
-			// leading empty line to fix off by one issue in reports
-			let instrumentedCode = instrumenter.instrumentSync("\n" + code, id, sourceMaps);
-			instrumentedCode =
-				`(async function report() {
-					await fetch('/__register__', { method: "POST" });
-					let source = new EventSource('/__events__');
-					source.addEventListener('coverage', () => {
-						fetch('/__coverage__', { method: 'POST', body: JSON.stringify(self.__coverage__) })
-					});
-				})();` + instrumentedCode;
+			let sender = `/* istanbul ignore next */(async function report() {
+				await fetch('/__register__', { method: "POST" });
+				let source = new EventSource('/__events__');
+				source.addEventListener('coverage', () => {
+					fetch('/__coverage__', { method: 'POST', body: JSON.stringify(self.__coverage__) })
+				});
+			})();`;
+			let instrumentedCode = instrumenter.instrumentSync(code, id, sourceMaps);
+			instrumentedCode = sender + instrumentedCode;
 			return { code: instrumentedCode, map: instrumenter.lastSourceMap() };
 		},
 	};
 }
 
+/**
+ * @param {import("hono").Hono} server
+ * @param {import("playwright").Page} page
+ */
 function coverageCollector(server, page) {
 	let counter = 0;
-	let coverageData = {};
+	let coverageMap = libCoverage.createCoverageMap();
+	let sourceMapStore = libSourceMaps.createSourceMapStore();
 	let { promise: finish, resolve: ping } = deferred();
 	server.post("/__register__", async (ctx) => {
 		counter++;
@@ -158,7 +169,7 @@ function coverageCollector(server, page) {
 	});
 	server.post("/__coverage__", async (ctx) => {
 		counter--;
-		Object.assign(coverageData, await ctx.req.json());
+		coverageMap.merge(await ctx.req.json());
 		return ctx.body(null, 200);
 	});
 
@@ -166,7 +177,8 @@ function coverageCollector(server, page) {
 		async collect() {
 			ping();
 			while (counter > 0) await page.waitForTimeout(5);
-			return JSON.stringify(coverageData);
+			let data = await sourceMapStore.transformCoverage(coverageMap);
+			return JSON.stringify(data);
 		},
 	};
 }

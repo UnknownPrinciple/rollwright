@@ -7,6 +7,9 @@
   },
   "dependencies": {
     "@playwright/test": "^1.42.1",
-    "rollwright": "file:../../packages/rollwright"
+    "@rollup/plugin-replace": "^5.0.5",
+    "rollup-plugin-vue": "^6.0.0",
+    "rollwright": "file:../../packages/rollwright",
+    "vue": "^3.4.21"
   }
 }

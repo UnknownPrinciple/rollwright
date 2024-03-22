@@ -4,7 +4,9 @@ import { expect } from "@playwright/test";
 import svelte from "rollup-plugin-svelte";
 
 test.beforeAll(async ({ setup }) => {
-	await setup({ plugins: [svelte()] });
+	await setup({
+		plugins: [svelte({ compilerOptions: { enableSourcemap: true } })],
+	});
 });
 
 test("basic svelte", async ({ page, rollup }) => {

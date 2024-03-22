@@ -1,16 +1,16 @@
 /** @typedef {import("@playwright/test/reporter").TestCase} TestCase */
 
-import libcov from "istanbul-lib-coverage";
-import { createContext } from "istanbul-lib-report";
-import { create as createReport } from "istanbul-reports";
+import libCoverage from "istanbul-lib-coverage";
+import libReport from "istanbul-lib-report";
+import reports from "istanbul-reports";
 
 /** @implements {import("@playwright/test/reporter").Reporter} */
 export default class IstanbulTextReporter {
-	coverageMap = libcov.createCoverageMap();
+	coverageMap = libCoverage.createCoverageMap();
 
 	constructor(config) {
 		let { name = "text", options = {} } = config;
-		this.report = createReport(name, options);
+		this.report = reports.create(name, options);
 	}
 
 	onTestEnd(test) {
@@ -21,7 +21,7 @@ export default class IstanbulTextReporter {
 	}
 
 	onEnd() {
-		let context = createContext({ coverageMap: this.coverageMap });
+		let context = libReport.createContext({ coverageMap: this.coverageMap });
 		this.report.execute(context);
 	}
 }

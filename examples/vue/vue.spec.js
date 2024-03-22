@@ -1,23 +1,23 @@
 import { expect } from "@playwright/test";
 import { test } from "rollwright";
+import vue from "rollup-plugin-vue";
+import replace from "@rollup/plugin-replace";
 
 test.beforeAll(({ setup }) => {
 	setup({
+		plugins: [replace({ "process.env.NODE_ENV": JSON.stringify("development") }), vue()],
 		template: `<body><div id="app">{{ message }}</div></body>`,
 	});
 });
 
 test("basic app bootstrap", async ({ page, rollup }) => {
 	await rollup(async () => {
-		let { createApp, ref } = await import("https://unpkg.com/vue@3/dist/vue.esm-browser.js");
-
-		createApp({
-			setup() {
-				const message = ref("Hello Vue!");
-				return { message };
-			},
-		}).mount("#app");
+		let { createApp } = await import("vue");
+		let { default: Counter } = await import("./Counter.vue");
+		createApp(Counter).mount("#app");
 	});
 
-	await expect(page.locator("#app")).toContainText("Hello Vue!");
+	await expect(page.locator("button")).toContainText("Count is: 0");
+	await page.click("button");
+	await expect(page.locator("button")).toContainText("Count is: 1");
 });
