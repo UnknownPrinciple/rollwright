@@ -15,7 +15,7 @@ export type RollwrightFixtures = {
 		staticRoot?: string;
 		extensions?: string[];
 	}) => Promise<void>;
-	rollup: <Result, Args extends unknown[], Output = JSHandle<Awaited<Result>>>(
+	execute: <Result, Args extends unknown[], Output = JSHandle<Awaited<Result>>>(
 		fn: (...args: { [k in keyof Args]: Unbox<Args[k]> }) => Result,
 		...args: Args
 	) => Promise<Output>;

@@ -1,8 +1,8 @@
 import { test } from "./fixtures";
 import { expect } from "@playwright/test";
 
-test("app module bootstrap", async ({ page, rollup }) => {
-	await rollup(async () => {
+test("app module bootstrap", async ({ page, execute }) => {
+	await execute(async () => {
 		let main = document.createElement("main");
 		main.innerHTML = `<app-root></app-root>`;
 		document.body.append(main);

@@ -1,8 +1,8 @@
 import { expect } from "@playwright/test";
 import { test } from "rollwright";
 
-test("simple element rendering", async ({ rollup }) => {
-	let element = await rollup(() => {
+test("simple element rendering", async ({ execute }) => {
+	let element = await execute(() => {
 		let element = document.createElement("div");
 		element.innerText = "hello";
 		document.body.append(element);
@@ -11,15 +11,15 @@ test("simple element rendering", async ({ rollup }) => {
 
 	await expect(element.asElement().innerText()).resolves.toContain("hello");
 
-	await rollup((element) => {
+	await execute((element) => {
 		element.classList.add("active");
 	}, element);
 
 	await expect(element.asElement().getAttribute("class")).resolves.toContain("active");
 });
 
-test("imported behavior invoked", async ({ page, rollup }) => {
-	await rollup(async () => {
+test("imported behavior invoked", async ({ page, execute }) => {
+	await execute(async () => {
 		let { renderCounter } = await import("./implementation.js");
 		let form = document.createElement("form");
 		document.body.append(form);

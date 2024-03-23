@@ -9,8 +9,8 @@ test.beforeAll(async ({ setup }) => {
 	});
 });
 
-test("basic svelte", async ({ page, rollup }) => {
-	await rollup(async () => {
+test("basic svelte", async ({ page, execute }) => {
+	await execute(async () => {
 		let main = document.createElement("main");
 		document.body.append(main);
 		let { default: Component } = await import("./App.svelte");

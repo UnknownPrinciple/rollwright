@@ -6,8 +6,8 @@ test.beforeAll(({ setup }) => {
 	setup({ plugins: [worker()] });
 });
 
-test("sum 1", async ({ rollup }) => {
-	let res = await rollup(async (from) => {
+test("sum 1", async ({ execute }) => {
+	let res = await execute(async (from) => {
 		let element = document.createElement("div");
 		document.body.append(element);
 

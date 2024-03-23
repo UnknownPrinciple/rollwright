@@ -1,8 +1,9 @@
 import { test as base, ConnectFn } from "rollwright";
 
 import commonjs from "@rollup/plugin-commonjs";
-import swc from "@rollup/plugin-swc";
 import inject from "@rollup/plugin-inject";
+import replace from "@rollup/plugin-replace";
+import esbuild from "rollup-plugin-esbuild";
 
 import { type JSHandle, type Locator } from "@playwright/test";
 import { type ReactNode } from "react";
@@ -14,12 +15,12 @@ export let test = base.extend<{
 	mount: ConnectFn<ReactNode | Promise<ReactNode>, Locator>;
 }>({
 	mount: [
-		async ({ rollup, page }, use) => {
+		async ({ execute, page }, use) => {
 			let root: JSHandle<Root | null> = null as any;
 
 			await use(async function mount(fn, ...args) {
 				if (root == null) {
-					root = await rollup(async () => {
+					root = await execute(async () => {
 						let { createRoot } = await import("react-dom/client");
 						let section = document.createElement("section");
 						document.body.append(section);
@@ -28,12 +29,12 @@ export let test = base.extend<{
 					});
 				}
 
-				let node = await rollup(fn, ...args);
-				await rollup((root, node) => root?.render(node), root, node);
+				let node = await execute(fn, ...args);
+				await execute((root, node) => root?.render(node), root, node);
 				return page.locator("section >> internal:control=component");
 			});
 
-			await rollup((root) => root?.unmount(), root);
+			await execute((root) => root?.unmount(), root);
 		},
 		{ scope: "test" },
 	],
@@ -42,21 +43,10 @@ export let test = base.extend<{
 test.beforeAll(async ({ setup }) => {
 	await setup({
 		plugins: [
+			esbuild({ jsx: "automatic", target: "es2022" }),
 			commonjs(),
-			swc({
-				swc: {
-					jsc: {
-						target: "es2022",
-						parser: { syntax: "ecmascript", jsx: true, decorators: true },
-						transform: {
-							react: { runtime: "automatic" },
-							optimizer: { globals: { envs: ["NODE_ENV"] } },
-						},
-					},
-					sourceMaps: true,
-				},
-			}),
-			inject({ _jsx: ["react/jsx-runtime", "jsx"] }),
+			replace({ "process.env.NODE_ENV": JSON.stringify("development") }),
+			inject({ _jsx: ["react/jsx-runtime", "jsx"], sourceMap: true }),
 		],
 	});
 });

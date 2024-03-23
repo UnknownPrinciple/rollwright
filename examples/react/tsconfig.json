@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "target": "es2022",
-    "module": "node16",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
-    "strict": true
-  }
-}

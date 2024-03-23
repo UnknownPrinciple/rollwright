@@ -20,7 +20,7 @@ import libSourceMaps from "istanbul-lib-source-maps";
 
 export let test = base.extend({
 	setup: [setup, { scope: "worker" }],
-	rollup: [execute, { scope: "test" }],
+	execute: [execute, { scope: "test" }],
 });
 
 async function setup({}, use) {
@@ -155,7 +155,6 @@ function coverage(options) {
 function coverageCollector(server, page) {
 	let counter = 0;
 	let coverageMap = libCoverage.createCoverageMap();
-	let sourceMapStore = libSourceMaps.createSourceMapStore();
 	let { promise: finish, resolve: ping } = deferred();
 	server.post("/__register__", async (ctx) => {
 		counter++;
@@ -177,6 +176,7 @@ function coverageCollector(server, page) {
 		async collect() {
 			ping();
 			while (counter > 0) await page.waitForTimeout(5);
+			let sourceMapStore = libSourceMaps.createSourceMapStore();
 			let data = await sourceMapStore.transformCoverage(coverageMap);
 			return JSON.stringify(data);
 		},

@@ -10,8 +10,8 @@ test.beforeAll(({ setup }) => {
 	});
 });
 
-test("basic app bootstrap", async ({ page, rollup }) => {
-	await rollup(async () => {
+test("basic app bootstrap", async ({ page, execute }) => {
+	await execute(async () => {
 		let { createApp } = await import("vue");
 		let { default: Counter } = await import("./Counter.vue");
 		createApp(Counter).mount("#app");
