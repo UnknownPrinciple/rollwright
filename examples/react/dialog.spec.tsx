@@ -10,7 +10,7 @@ interface Props extends DialogProps {
 
 let test = base.extend<{ Dialog: JSHandle<(props: Props) => JSX.Element> }>({
 	plugins: async ({ plugins }, use) => {
-		console.log("intercept", plugins);
+		// override here
 		await use(plugins);
 	},
 	Dialog: async ({ execute }, use) => {

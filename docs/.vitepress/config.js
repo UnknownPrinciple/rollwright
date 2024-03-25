@@ -6,13 +6,25 @@ export default defineConfig({
 	description:
 		"A set of tools to make Playwright comfortable for UI integration testing.",
 	themeConfig: {
-		// https://vitepress.dev/reference/default-theme-config
-		nav: [{ text: "Home", link: "/" }],
+		search: { provider: "local" },
+
+		nav: [{ text: "Guide", link: "/introduction" }],
 
 		sidebar: [
 			{
-				text: "Getting Started",
-				items: [{ text: "Introduction", link: "/introduction" }],
+				text: "Guidelines",
+				items: [
+					{ text: "Introduction", link: "/introduction" },
+					{ text: "Tooling Configuration", link: "/configuration" },
+					{ text: "Framework Integration", link: "/integration" },
+					{ text: "Test Coverage", link: "/coverage" },
+					{ text: "Code Mocking", link: "/mocking" },
+					{ text: "Solutions Comparison", link: "/comparison" },
+				],
+			},
+			{
+				text: "Reference",
+				items: [],
 			},
 		],
 
@@ -22,5 +34,10 @@ export default defineConfig({
 				link: "https://github.com/unknownprinciple/rollwright",
 			},
 		],
+
+		footer: {
+			message: "Released under ISC License.",
+			copyright: "Copyright &copy; 2024 Oleksii Raspopov",
+		},
 	},
 });
