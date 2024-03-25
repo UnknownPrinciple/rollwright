@@ -9,12 +9,10 @@ export type ConnectFn<Output, Result = Output> = <Args extends unknown[]>(
 ) => Promise<Result>;
 
 export type RollwrightFixtures = {
-	setup: (options: {
-		plugins?: Plugin[];
-		template?: string;
-		staticRoot?: string;
-		extensions?: string[];
-	}) => Promise<void>;
+	plugins: Plugin[];
+	template: string;
+	staticRoot: string | null;
+	extensions: string[];
 	execute: <Result, Args extends unknown[], Output = JSHandle<Awaited<Result>>>(
 		fn: (...args: { [k in keyof Args]: Unbox<Args[k]> }) => Result,
 		...args: Args

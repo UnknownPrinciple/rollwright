@@ -1,5 +1,5 @@
 {
-  "name": "examples-vanilla",
+  "name": "examples-lit",
   "type": "module",
   "private": true,
   "scripts": {
@@ -7,9 +7,9 @@
   },
   "dependencies": {
     "@playwright/test": "^1.42.1",
-    "@rollup/plugin-alias": "^5.1.0",
-    "rollup-plugin-worker-url": "file:../../packages/rollup-plugin-worker-url",
+    "lit": "^3.1.2",
+    "rollup-plugin-esbuild": "^6.1.1",
     "rollwright": "file:../../packages/rollwright",
-    "sinon": "^17.0.1"
+    "typescript": "^5.4.3"
   }
 }

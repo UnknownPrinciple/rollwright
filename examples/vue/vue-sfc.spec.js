@@ -3,14 +3,12 @@ import { test } from "rollwright";
 import vue from "rollup-plugin-vue";
 import replace from "@rollup/plugin-replace";
 
-test.beforeAll(({ setup }) => {
-	setup({
-		plugins: [replace({ "process.env.NODE_ENV": JSON.stringify("development") }), vue()],
-		template: `<body><div id="app">{{ message }}</div></body>`,
-	});
+test.use({
+	plugins: [replace({ "process.env.NODE_ENV": JSON.stringify("development") }), vue()],
+	template: `<body><div id="app"></div></body>`,
 });
 
-test("basic app bootstrap", async ({ page, execute }) => {
+test("component bootstrap", async ({ page, execute }) => {
 	await execute(async () => {
 		let { createApp } = await import("vue");
 		let { default: Counter } = await import("./Counter.vue");

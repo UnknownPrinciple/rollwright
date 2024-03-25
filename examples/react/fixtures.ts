@@ -9,11 +9,20 @@ import { type JSHandle, type Locator } from "@playwright/test";
 import { type ReactNode } from "react";
 import { type Root } from "react-dom/client";
 
-process.env.NODE_ENV = "development";
-
 export let test = base.extend<{
 	mount: ConnectFn<ReactNode | Promise<ReactNode>, Locator>;
 }>({
+	plugins: [
+		esbuild({ jsx: "automatic", target: "es2022", exclude: [/node_modules/] }),
+		commonjs(),
+		replace({ "process.env.NODE_ENV": JSON.stringify("development") }),
+		inject({
+			_jsx: ["react/jsx-runtime", "jsx"],
+			_jsxs: ["react/jsx-runtime", "jsxs"],
+			sourceMap: true,
+			exclude: [/node_modules/],
+		}),
+	],
 	mount: [
 		async ({ execute, page }, use) => {
 			let root: JSHandle<Root | null> = null as any;
@@ -38,15 +47,4 @@ export let test = base.extend<{
 		},
 		{ scope: "test" },
 	],
-});
-
-test.beforeAll(async ({ setup }) => {
-	await setup({
-		plugins: [
-			esbuild({ jsx: "automatic", target: "es2022" }),
-			commonjs(),
-			replace({ "process.env.NODE_ENV": JSON.stringify("development") }),
-			inject({ _jsx: ["react/jsx-runtime", "jsx"], sourceMap: true }),
-		],
-	});
 });

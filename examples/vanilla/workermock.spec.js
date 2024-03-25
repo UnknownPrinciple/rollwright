@@ -1,9 +1,10 @@
 import { expect } from "@playwright/test";
 import { test } from "rollwright";
 import { worker } from "rollup-plugin-worker-url";
+import alias from "@rollup/plugin-alias";
 
 test.use({
-	plugins: [worker()],
+	plugins: [worker(), alias({ entries: { "./work.js": "./work.mock.js" } })],
 });
 
 test("sum 1", async ({ execute }) => {
@@ -23,5 +24,5 @@ test("sum 1", async ({ execute }) => {
 	}, 1);
 
 	await expect(res.asElement().innerText()).resolves.toContain("3");
-	await expect(res.asElement().innerText()).resolves.toContain("[12,7]");
+	await expect(res.asElement().innerText()).resolves.toContain("faked");
 });

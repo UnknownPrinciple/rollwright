@@ -27,3 +27,15 @@ test("custom fixture for better workflow", async ({ mount }) => {
 
 	await expect(update).toContainText("Updated");
 });
+
+test("mixing imports for better control", async ({ execute, mount }) => {
+	let Content = await execute(() => import("./Content").then((mod) => mod.Content));
+	let element = await mount((msg) => <h1 id="heading">{msg}</h1>, "Hello");
+
+	await expect(element).toHaveAttribute("id", "heading");
+	await expect(element).toContainText("Hello");
+
+	let update = await mount((Content, msg) => <Content msg={msg} />, Content, "Updated");
+
+	await expect(update).toContainText("Updated");
+});
