@@ -2,6 +2,7 @@ import { defineConfig } from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+	base: process.env.CI != null ? "/rollwright/" : undefined,
 	title: "Rollwright",
 	description:
 		"A set of tools to make Playwright comfortable for UI integration testing.",
