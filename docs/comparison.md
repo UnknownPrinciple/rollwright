@@ -10,7 +10,7 @@ sheds the light on the difference in approach and implementation so you can make
 a concious decision that works for your project.
 
 ::: warning  
-This guide is under construction and will be updated as more insights are
+🚧 This guide is under construction and will be updated as more insights are
 discovered.  
 :::
 
@@ -42,11 +42,24 @@ changes.
 
 Playwright CT uses Vite under the hood to build all assets required by tests.
 
+- experimental status
+- build time
+- api constraints (either build time code or evaluate() that doesn't go through
+  build pipeline)
+- code coverage story
+
 ## Vitest
 
 [Vitest][vitest] has [an option][vitest-browser] to run tests in browser.
 
+- experimental, but nice it uses playwright
+- difference between running test in browser and testing in browser
+- plenty of unresolved issues with coverage and CI
+
 ## WebdriverIO
+
+- like vitest, runs tests themselves in browser
+- autowaiting disabled by default
 
 [testing-library]: https://testing-library.com
 [jest]: https://jestjs.io

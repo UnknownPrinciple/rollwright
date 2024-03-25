@@ -15,7 +15,7 @@ export let test = base.extend<{
 	plugins: [
 		esbuild({ jsx: "automatic", target: "es2022", exclude: [/node_modules/] }),
 		commonjs(),
-		replace({ "process.env.NODE_ENV": JSON.stringify("development") }),
+		replace({ "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV) }),
 		inject({
 			_jsx: ["react/jsx-runtime", "jsx"],
 			_jsxs: ["react/jsx-runtime", "jsxs"],

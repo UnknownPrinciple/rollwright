@@ -3,7 +3,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "serve": "vitepress dev"
+    "serve": "vitepress dev",
+    "build": "vitepress build"
   },
   "dependencies": {
     "vitepress": "^1.0.0-rc.45"

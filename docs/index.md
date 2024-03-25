@@ -4,17 +4,13 @@ layout: home
 
 hero:
   name: "Rollwright"
-  text: "UI integration testing made easy"
-  tagline:
-    A set of tools to make <a href="https://playwright.dev" target="_blank"
-    style="color:var(--vp-button-brand-active-bg);">Playwright</a> comfortable
-    for implementation level UI testing.
+  text: "Component testing made easy"
   actions:
     - theme: brand
       text: Get Started
       link: /introduction
     - theme: alt
-      text: GitHub
+      text: View on GitHub
       link: https://github.com/unknownprinciple/rollwright
 
 features:

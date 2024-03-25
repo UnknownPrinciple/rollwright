@@ -15,6 +15,7 @@ export default defineConfig({
 				text: "Guidelines",
 				items: [
 					{ text: "Introduction", link: "/introduction" },
+					{ text: "How it works", link: "/internals" },
 					{ text: "Tooling Configuration", link: "/configuration" },
 					{ text: "Framework Integration", link: "/integration" },
 					{ text: "Test Coverage", link: "/coverage" },
@@ -24,7 +25,13 @@ export default defineConfig({
 			},
 			{
 				text: "Reference",
-				items: [],
+				items: [
+					{ text: "rollwright", link: "/ref/rollwright" },
+					{
+						text: "rollup-plugin-worker-url",
+						link: "/ref/rollup-plugin-worker-url",
+					},
+				],
 			},
 		],
 
