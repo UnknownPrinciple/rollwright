@@ -16,7 +16,6 @@ import { serveStatic } from "@hono/node-server/serve-static";
 export let test = base.extend({
 	plugins: [[], { option: true }],
 	template: [`<!doctype html><html><head></head><body></body></html>`, { option: true }],
-	staticRoot: [null, { option: true }],
 	extensions: [[".js", ".mjs", ".cjs", ".json", ".ts", ".tsx"], { option: true }],
 	rlcache: [rlcache, { scope: "worker" }],
 	execute: [execute, { scope: "test" }],
@@ -49,11 +48,7 @@ async function rlcache({}, use) {
 	});
 }
 
-async function execute(
-	{ page, rlcache, plugins, template, staticRoot, extensions },
-	use,
-	testInfo,
-) {
+async function execute({ page, rlcache, plugins, template, extensions }, use, testInfo) {
 	let reporterName = "rollwright/coverage-reporter";
 	let shouldInstrument = testInfo.config.reporter.some(
 		(v) => v != null && (v.includes(reporterName) || v[0].includes(reporterName)),
@@ -61,9 +56,10 @@ async function execute(
 
 	let server = new Hono();
 	let connect = null;
-	server.get("/", (ctx) => ctx.html(template));
+	let pageContent = template.html ?? template;
+	server.get("/", (ctx) => ctx.html(pageContent));
 
-	let root = staticRoot ?? relative(process.cwd(), dirname(testInfo.file));
+	let root = template.root ?? relative(process.cwd(), dirname(testInfo.file));
 	let statics = serveStatic({ root });
 	server.notFound(async (ctx) => {
 		let response = await statics(ctx, () => Promise.resolve(null));
@@ -77,7 +73,7 @@ async function execute(
 	async function evaluate(fn, ...args) {
 		let hash = `step_${++id}`;
 		let code = `window.${hash} = ${fn.toString()};`;
-		let filename = resolve(dirname(testInfo.file), hash + basename(testInfo.file));
+		let filename = resolve(dirname(testInfo.file), `${hash}_${basename(testInfo.file)}`);
 		let input = basename(filename);
 		let bundle = await rollup({
 			cache: rlcache.load(),
@@ -95,6 +91,8 @@ async function execute(
 
 		let { output } = await bundle.generate({
 			format: "esm",
+			generatedCode: "es2015",
+			hashCharacters: "hex",
 			manualChunks(id) {
 				if (id.startsWith("/")) {
 					let path = relative(process.cwd(), id);
