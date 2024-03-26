@@ -9,7 +9,10 @@ export default defineConfig({
 	themeConfig: {
 		search: { provider: "local" },
 
-		nav: [{ text: "Guide", link: "/introduction" }],
+		nav: [
+			{ text: "Guide", link: "/introduction" },
+			{ text: "API", link: "/ref/rollwright" },
+		],
 
 		sidebar: [
 			{

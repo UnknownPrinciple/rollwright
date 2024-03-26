@@ -9,10 +9,6 @@ interface Props extends DialogProps {
 }
 
 let test = base.extend<{ Dialog: JSHandle<(props: Props) => JSX.Element> }>({
-	plugins: async ({ plugins }, use) => {
-		// override here
-		await use(plugins);
-	},
 	Dialog: async ({ execute }, use) => {
 		let Component = await execute(async () => {
 			let { Root, Trigger, Overlay, Content, Title, Close, Portal } = await import(
@@ -34,6 +30,13 @@ let test = base.extend<{ Dialog: JSHandle<(props: Props) => JSX.Element> }>({
 			};
 		});
 		await use(Component);
+	},
+});
+
+test.use({
+	plugins: async ({ plugins }, use) => {
+		// override here
+		await use(plugins);
 	},
 });
 
