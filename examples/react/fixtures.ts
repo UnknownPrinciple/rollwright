@@ -7,10 +7,12 @@ import esbuild from "rollup-plugin-esbuild";
 
 import { type JSHandle, type Locator } from "@playwright/test";
 import { type ReactNode } from "react";
-import { type Root } from "react-dom/client";
+
+import * as Sinon from "sinon";
 
 export let test = base.extend<{
 	mount: ConnectFn<ReactNode | Promise<ReactNode>, Locator>;
+	sinon: <T>(fn: (lib: typeof Sinon) => T) => Promise<JSHandle<T>>;
 }>({
 	plugins: [
 		esbuild({ jsx: "automatic", target: "es2022", exclude: [/node_modules/] }),
@@ -25,19 +27,15 @@ export let test = base.extend<{
 	],
 	mount: [
 		async ({ execute, page }, use) => {
-			let root: JSHandle<Root | null> = null as any;
+			let root = await execute(async () => {
+				let { createRoot } = await import("react-dom/client");
+				let section = document.createElement("section");
+				document.body.append(section);
+				let root = createRoot(section);
+				return root;
+			});
 
 			await use(async function mount(fn, ...args) {
-				if (root == null) {
-					root = await execute(async () => {
-						let { createRoot } = await import("react-dom/client");
-						let section = document.createElement("section");
-						document.body.append(section);
-						let root = createRoot(section);
-						return root;
-					});
-				}
-
 				let node = await execute(fn, ...args);
 				await execute((root, node) => root?.render(node), root, node);
 				return page.locator("section >> internal:control=component");
@@ -47,4 +45,8 @@ export let test = base.extend<{
 		},
 		{ scope: "test" },
 	],
+	sinon: async ({ execute }, use) => {
+		let sinon = await execute(() => import("sinon"));
+		await use((fn) => execute(fn, sinon));
+	},
 });
