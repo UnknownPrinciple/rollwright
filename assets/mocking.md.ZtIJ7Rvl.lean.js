@@ -1,0 +1,1 @@
+import{_ as e,c as t,o as i,a4 as n}from"./chunks/framework.D0jgnAWi.js";const u=JSON.parse('{"title":"Mocking","description":"","frontmatter":{},"headers":[],"relativePath":"mocking.md","filePath":"mocking.md"}'),o={name:"mocking.md"},a=n("",4),s=[a];function r(c,l,g,d,p,h){return i(),t("div",null,s)}const _=e(o,[["render",r]]);export{u as __pageData,_ as default};

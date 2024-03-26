@@ -1,0 +1,1 @@
+import{_ as s,c as i,o as a,a4 as e}from"./chunks/framework.D0jgnAWi.js";const g=JSON.parse('{"title":"Test coverage","description":"","frontmatter":{},"headers":[],"relativePath":"coverage.md","filePath":"coverage.md"}'),n={name:"coverage.md"},t=e("",7),p=[t];function l(h,r,k,o,d,E){return a(),i("div",null,p)}const y=s(n,[["render",l]]);export{g as __pageData,y as default};

@@ -1,0 +1,1 @@
+import{_ as e,c as a,o as t,a4 as r}from"./chunks/framework.D0jgnAWi.js";const g=JSON.parse('{"title":"How it works","description":"","frontmatter":{},"headers":[],"relativePath":"internals.md","filePath":"internals.md"}'),o={name:"internals.md"},s=r("",4),n=[s];function l(i,c,d,p,h,u){return t(),a("div",null,n)}const f=e(o,[["render",l]]);export{g as __pageData,f as default};
